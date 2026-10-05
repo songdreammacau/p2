@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curated Collection | songdream MACAU</title>
+    <!-- 引入高質感字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a2024;
+            --card-bg: #14181c;
+            --bg-darker: #0d1114;
+            --mega-menu-bg: rgba(22, 28, 32, 0.95);
+            --text-primary: #f5f5f3;
+            --text-secondary: #9ba3a6;
+            --accent-subtle: rgba(245, 245, 243, 0.1);
+            --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 90px;
+            width: 100%;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            width: 100%;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 頂部導覽列 */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 60px;
+            z-index: 1000;
+            background: rgba(13, 17, 20, 0.85); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .brand-logo img {
+            height: 28px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-item {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            transition: color 0.4s var(--transition-smooth);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-primary);
+        }
+
+        .nav-btn {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 10px 24px;
+            border: 1px solid rgba(245, 245, 243, 0.3);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.5s var(--transition-smooth);
+        }
+
+        .nav-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border-color: var(--text-primary);
+        }
+
+        /* 專區內容主體 */
+        .collection-page-container {
+            padding: 160px 80px 120px 80px;
+            max-width: 1750px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--accent-subtle);
+            padding-bottom: 30px;
+        }
+
+        .page-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(32px, 4vw, 52px);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .category-switcher {
+            display: flex;
+            gap: 20px;
+        }
+
+        .cat-tab {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--accent-subtle);
+            transition: all 0.3s;
+        }
+
+        .cat-tab.active, .cat-tab:hover {
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* 圖片藝廊網格 */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .photo-card {
+            position: relative;
+            height: 380px;
+            background: var(--card-bg);
+            border: 1px solid var(--accent-subtle);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.6s var(--transition-smooth);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center bottom;
+            filter: brightness(0.8) contrast(1.05);
+            transition: transform 1s var(--transition-smooth), filter 0.5s;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+            filter: brightness(0.95) contrast(1.1);
+        }
+
+        .photo-card:hover {
+            border-color: rgba(245, 245, 243, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        /* 載入更多按鈕區 */
+        .load-more-wrap {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn-load-more {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            background: transparent;
+            border: 1px solid rgba(245, 245, 243, 0.3);
+            padding: 16px 48px;
+            cursor: pointer;
+            transition: all 0.4s var(--transition-smooth);
+        }
+
+        .btn-load-more:hover {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border-color: var(--text-primary);
+        }
+
+        /* 燈箱 Lightbox 視窗 */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(13, 17, 20, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 85vh;
+            object-fit: contain;
+            border: 1px solid var(--accent-subtle);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-close, .lightbox-prev, .lightbox-next {
+            position: absolute;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--accent-subtle);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .lightbox-close {
+            top: 30px;
+            right: 40px;
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-prev, .lightbox-next {
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            padding: 15px 20px;
+        }
+
+        .lightbox-prev { left: 30px; }
+        .lightbox-next { right: 30px; }
+
+        .lightbox-close:hover, .lightbox-prev:hover, .lightbox-next:hover {
+            background: var(--text-primary);
+            color: var(--bg-color);
+        }
+
+        /* 頁尾 */
+        footer {
+            background: var(--bg-darker);
+            padding: 80px;
+            border-top: 1px solid var(--accent-subtle);
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+        }
+
+        @media (max-width: 1024px) {
+            header { padding: 0 30px; height: 80px; }
+            .collection-page-container { padding: 120px 20px 80px 20px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .photo-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部導覽列 -->
+    <header>
+        <a href="index.html" class="brand-logo">
+            <img src="images/a/icon_001.png" alt="songdream MACAU">
+        </a>
+        <div class="nav-right">
+            <a href="index.html#collection" class="nav-item">← Back to Home</a>
+            <a href="index.html#contact" class="nav-btn">聯絡我們</a>
+        </div>
+    </header>
+
+    <!-- 內容展示區 -->
+    <main class="collection-page-container">
+        <div class="page-header">
+            <div>
+                <span style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 8px;">Curated Spaces</span>
+                <h1 class="page-title" id="pageTitle">客廳 ｜ Living Room</h1>
+            </div>
+            <!-- 4大分類快速切換標籤 -->
+            <div class="category-switcher">
+                <a href="#" class="cat-tab active" onclick="switchCategory('living', event)">Living</a>
+                <a href="#" class="cat-tab" onclick="switchCategory('dining', event)">Dining</a>
+                <a href="#" class="cat-tab" onclick="switchCategory('bedroom', event)">Bedroom</a>
+                <a href="#" class="cat-tab" onclick="switchCategory('study', event)">Study</a>
+            </div>
+        </div>
+
+        <!-- 圖片網格容器 -->
+        <div class="photo-grid" id="photoGrid">
+            <!-- 動態生成圖片卡片 -->
+        </div>
+
+        <!-- 載入更多按鈕 -->
+        <div class="load-more-wrap" id="loadMoreWrap">
+            <button class="btn-load-more" id="loadMoreBtn" onclick="loadMorePhotos()">Load More <span>↓</span></button>
+        </div>
+    </main>
+
+    <!-- 燈箱 Lightbox 視窗 -->
+    <div class="lightbox-modal" id="lightboxModal">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-prev" onclick="changeImage(-1)">&#10094;</button>
+        <img src="" alt="Zoomed Space" class="lightbox-content" id="lightboxImg">
+        <button class="lightbox-next" onclick="changeImage(1)">&#10095;</button>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer>
+        <p>&copy; 2016 - 2026 songdreamMACAU. All Rights Reserved.</p>
+    </footer>
+
+    <!-- 互動邏輯：自動對應 a_1.JPG 規則並加入隨機打亂（洗牌） -->
+    <script>
+        const categories = {
+            living: { name: "客廳 ｜ Living Room", folder: "images/collection/living/", count: 50 },
+            dining: { name: "飯廳 ｜ Dining Room", folder: "images/collection/dining/", count: 40 },
+            bedroom: { name: "睡房 ｜ Bedroom", folder: "images/collection/bedroom/", count: 45 },
+            study: { name: "書房 ｜ Study Room", folder: "images/collection/study/", count: 30 }
+        };
+
+        let currentCat = 'living';
+        let displayedCount = 0;
+        const batchSize = 16;
+        let currentImageIndex = 0;
+        let currentPhotosArray = [];
+
+        // 洗牌演算法（Fisher-Yates Shuffle），用來隨機打亂照片順序
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initCategory(catKey) {
+            currentCat = catKey;
+            displayedCount = 0;
+            document.getElementById('pageTitle').textContent = categories[catKey].name;
+            
+            document.querySelectorAll('.cat-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if(tab.textContent.toLowerCase().includes(catKey)) {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.getElementById('photoGrid').innerHTML = '';
+            
+            const cat = categories[currentCat];
+            let tempArray = [];
+            for (let i = 1; i <= cat.count; i++) {
+                tempArray.push(`${cat.folder}a_${i}.JPG`);
+            }
+
+            // 每次載入或切換時隨機打亂順序，避免相近照片聚集
+            currentPhotosArray = shuffleArray(tempArray);
+
+            loadMorePhotos();
+        }
+
+        function switchCategory(catKey, e) {
+            e.preventDefault();
+            initCategory(catKey);
+        }
+
+        function loadMorePhotos() {
+            const grid = document.getElementById('photoGrid');
+            const cat = categories[currentCat];
+            const nextLimit = Math.min(displayedCount + batchSize, cat.count);
+
+            for (let i = displayedCount; i < nextLimit; i++) {
+                const imgPath = currentPhotosArray[i];
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+                card.innerHTML = `
+                    <img src="${imgPath}" alt="${cat.name} ${i+1}" loading="lazy" onclick="openLightbox(${i})" 
+                         onerror="this.parentElement.style.display='none'">
+                `;
+                grid.appendChild(card);
+            }
+
+            displayedCount = nextLimit;
+
+            const loadMoreWrap = document.getElementById('loadMoreWrap');
+            if (displayedCount >= cat.count) {
+                loadMoreWrap.style.display = 'none';
+            } else {
+                loadMoreWrap.style.display = 'block';
+            }
+        }
+
+        // 燈箱控制邏輯
+        const lightboxModal = document.getElementById('lightboxModal');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        function openLightbox(index) {
+            currentImageIndex = index;
+            lightboxImg.src = currentPhotosArray[currentImageIndex];
+            lightboxModal.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            lightboxModal.style.display = 'none';
+        }
+
+        function changeImage(direction) {
+            currentImageIndex += direction;
+            if (currentImageIndex < 0) {
+                currentImageIndex = currentPhotosArray.length - 1;
+            } else if (currentImageIndex >= currentPhotosArray.length) {
+                currentImageIndex = 0;
+            }
+            lightboxImg.src = currentPhotosArray[currentImageIndex];
+        }
+
+        lightboxModal.addEventListener('click', (e) => {
+            if (e.target === lightboxModal) closeLightbox();
+        });
+
+        // 預設載入客廳
+        initCategory('living');
+    </script>
+</body>
+</html>
