@@ -13,13 +13,16 @@ h1{text-align:center;margin-bottom:2rem;font-weight:500}
 .tab.active{background:#222;color:#fff}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2rem}
 .card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.07);transition:0.25s}
-.card:hover{transform:translateY(-6px);box-shadow:0 10px 24px rgba(0,0,0,0.1)}
+.card:hover{transform:translateY(-6px);box-shadow:0 10px 24px rgba(0,0,0.1)}
 .imgWrap{height:260px;background:#eee;overflow:hidden;cursor:pointer}
-.imgWrap img{width:100%;height:100%;object-fit:cover}
+.imgWrap img{width:100%;height:100%;object-fit:cover;/* 圖片延遲載入 */}
 .info{padding:1.2rem}
 .name{font-size:1.15rem;font-weight:600;margin-bottom:0.5rem}
 .price{font-size:1.05rem;color:#d23b3b;font-weight:bold}
 .loading{text-align:center;padding:3rem;font-size:18px}
+.load-more-wrap{text-align:center;margin:3rem 0}
+#loadMoreBtn{padding:0.8rem 2rem;border:none;background:#222;color:#fff;border-radius:8px;font-size:1rem;cursor:pointer}
+#loadMoreBtn:disabled{background:#aaa;cursor:not-allowed}
 .modal{
   position:fixed;
   inset:0;
@@ -56,6 +59,9 @@ h1{text-align:center;margin-bottom:2rem;font-weight:500}
 <div class="gallery" id="gallery">
   <div class="loading">載入產品中...</div>
 </div>
+<div class="load-more-wrap">
+  <button id="loadMoreBtn" disabled>載入更多</button>
+</div>
 
 <div class="modal" id="imageModal">
   <span class="closeBtn">&times;</span>
@@ -63,7 +69,6 @@ h1{text-align:center;margin-bottom:2rem;font-weight:500}
 </div>
 
 <script>
-// ========= 已經填好你的Worker網址 =========
 const WORKER_URL = "https://airtable-proxy.songdreamdeco.workers.dev/";
 
 const galleryEl = document.getElementById("gallery");
@@ -71,23 +76,42 @@ const modal = document.getElementById("imageModal");
 const modalImg = document.getElementById("modalImg");
 const closeBtn = document.querySelector(".closeBtn");
 const tabs = document.querySelectorAll(".tab");
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+let currentType = "collection";
+let nextOffset = null;
+let isLoading = false;
 
 function closeModal(){ modal.classList.remove("active"); }
 closeBtn.onclick = closeModal;
 modal.onclick = e=>{ if(e.target === modal) closeModal(); }
 
-async function loadData(typeName){
-  galleryEl.innerHTML = `<div class="loading">載入產品中...</div>`;
+// 載入資料函式
+async function loadData(typeName, append=false){
+  if(isLoading) return;
+  isLoading = true;
+  loadMoreBtn.disabled = true;
+  if(!append) galleryEl.innerHTML = `<div class="loading">載入產品中...</div>`;
+
+  let url = `${WORKER_URL}?type=${typeName}`;
+  if(append && nextOffset){
+    url += `&offset=${nextOffset}`;
+  }
+
   try{
-    const res = await fetch(`${WORKER_URL}?type=${typeName}`);
-    const products = await res.json();
-    galleryEl.innerHTML = "";
+    const res = await fetch(url);
+    const result = await res.json();
+    const products = result.products;
+    nextOffset = result.nextOffset;
+
+    if(!append) galleryEl.innerHTML = "";
+
     products.forEach(item=>{
       const card = document.createElement("div");
       card.className="card";
       card.innerHTML = `
         <div class="imgWrap" data-img="${item.圖片}">
-          ${item.圖片 ? `<img src="${item.圖片}" alt="${item.產品名稱}">` : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#888">無圖片</div>`}
+          ${item.圖片 ? `<img loading="lazy" src="${item.圖片}" alt="${item.產品名稱}">` : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#888">無圖片</div>`}
         </div>
         <div class="info">
           <div class="name">${item.產品名稱}</div>
@@ -103,20 +127,39 @@ async function loadData(typeName){
         }
       })
     })
+
+    // 還有下一頁才開啟按鈕
+    if(nextOffset){
+      loadMoreBtn.disabled = false;
+    }else{
+      loadMoreBtn.textContent = "沒有更多產品";
+    }
   }catch(err){
     console.error(err);
-    galleryEl.innerHTML = `<p>讀取Airtable失敗，檢查Worker</p>`;
+    if(!append) galleryEl.innerHTML = `<p>讀取Airtable失敗，檢查Worker</p>`;
   }
+  isLoading = false;
 }
 
+// 切換分類（切換會清空，重新從第一頁20筆開始）
 tabs.forEach(tab=>{
   tab.addEventListener("click",()=>{
     tabs.forEach(t=>t.classList.remove("active"));
     tab.classList.add("active");
-    loadData(tab.dataset.target);
+    currentType = tab.dataset.target;
+    nextOffset = null;
+    loadMoreBtn.textContent = "載入更多";
+    loadData(currentType, false);
   })
 })
-loadData("collection");
+
+// Load More 按鈕，追加下一頁
+loadMoreBtn.addEventListener("click",()=>{
+  loadData(currentType, true);
+})
+
+// 初始載入
+loadData("collection", false);
 </script>
 </body>
 </html>
